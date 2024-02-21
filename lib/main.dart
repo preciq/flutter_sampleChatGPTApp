@@ -62,11 +62,14 @@ class _HomePageState extends State<HomePage> {
                       height: 500,
                       width: 500,
                       child: Center(
-                        child: Text(
-                          chatGPTResponse,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Text(
+                            chatGPTResponse,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       )),
@@ -94,7 +97,7 @@ class _HomePageState extends State<HomePage> {
         headers: {
           "Content-Type": "application/json",
           "Authorization":
-              "Bearer ", //put your actual auth key here after "Bearer"
+              "Bearer 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", //put your actual auth key here after "Bearer"
         },
         body: json.encode(body));
 
