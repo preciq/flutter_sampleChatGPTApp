@@ -2,119 +2,157 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:sample_chat_app/history.dart';
+
 void main() {
-  runApp(MyApp());
+  runApp(const MainApp());
 }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Llama API Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  String _responseText = '';
-  final TextEditingController _promptController = TextEditingController();
-
-  Future<void> _fetchData() async {
-    const String url = 'https://api.replicate.com/v1/predictions';
-    const String token = 'r8_S1jRu33UXar3TA6msFU1fyV8ngmAcfk1lCkpa';
-    final Map<String, dynamic> jsonBody = {
-      "version":
-          "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
-      "input": {"prompt": _promptController.text}
-    };
-
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Token $token',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(jsonBody),
-    );
-
-    final responseData = json.decode(response.body);
-
-    if (responseData.containsKey('urls') &&
-        responseData['urls'].containsKey('get')) {
-      final getUrl = responseData['urls']['get'];
-
-      final getResponse = await http.get(
-        Uri.parse(getUrl),
-        headers: {'Authorization': 'Token $token'},
-      );
-
-      final getResponseData = json.decode(getResponse.body);
-
-      setState(() {
-        _responseText = json.encode(getResponseData);
-      });
-    }
-  }
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Llama API Demo'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: _promptController,
-              decoration: const InputDecoration(
-                labelText: 'Enter Prompt',
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _fetchData,
-              child: const Text('Send Request'),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Container(
-                    height: 400,
-                    width: 400,
-                    color: Colors.red,
-                    child: Text(
-                      _responseText,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
+    return const MaterialApp(home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final TextEditingController txt = TextEditingController();
+  String userInput = "";
+  String chatGPTResponse = "Pending";
+  List<String> historyList = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        drawer: Drawer(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: ListTile(
+                  hoverColor: Colors.white,
+                  title: const Text("History"),
+                  leading: const Icon(Icons.history),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          HistoryPage(historyList: historyList),
+                    ));
+                  },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          centerTitle: true,
+          title: const Text(
+            'Simple chatGpt Api',
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: txt,
+                  decoration: const InputDecoration(
+                      hintText: "Enter prompt to ChatGPT"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        submitButtonPressed();
+                      });
+                    },
+                    child: const Text("Submit")),
+              ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                      color: Colors.red,
+                      height: 500,
+                      width: 500,
+                      child: Center(
+                        child: Text(
+                          chatGPTResponse,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Future<String> postRequestToChatGPT() async {
+    Uri url = Uri.https("api.openai.com", "/v1/chat/completions");
+
+    Map<String, dynamic> body = {
+      "model": "gpt-3.5-turbo",
+      "messages": [
+        {"role": "user", "content": userInput}
+      ],
+      "temperature": 0.7
+    };
+
+    var response = await http.post(url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer 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", //put your actual auth key here after "Bearer"
+        },
+        body: json.encode(body));
+
+    if (response.statusCode == 200) {
+      print("Success!");
+    } else {
+      print("Error! ${response.statusCode}");
+    }
+
+    return json.decode(response.body)["choices"][0]["message"]["content"];
+    //return response.body;
+  }
+
+  void submitButtonPressed() async {
+    setState(() {
+      userInput = txt.text;
+    });
+    chatGPTResponse = await postRequestToChatGPT();
+    setState(() {});
+  }
 }
 
+
+
 /*
+Additions: 
 
-
-3.Create a list to save responses and display 
-in a listview (Just create the listview, don't need 
-to display it, will be displayed in second requirement) - Shakil
+Make response container scrollable - Shohag
+Add an appbar at the top with a drawer that shows the responses - Mithu
+Create a list to save responses and display in a listview (Just create the listview, don't need to display it, will be displayed in second requirement) - Shakil
 
 */

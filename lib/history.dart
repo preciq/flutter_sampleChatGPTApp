@@ -26,15 +26,7 @@ class _HistoryPageState extends State<HistoryPage> {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(widget.historyList[index]),
-                // trailing: IconButton(
-                //   icon: const Icon(Icons.delete),
-                //   onPressed: () {
-                //     if (widget.historyList.isEmpty) {}
-                //     setState(() {
-                //       widget.historyList.removeAt(index);
-                //     });
-                //   },
-                // )
+                
                 
               );
             },
