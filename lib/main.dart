@@ -1,7 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:sample_chat_app/history.dart';
 
 void main() {
   runApp(const MainApp());
@@ -27,13 +28,31 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController txt = TextEditingController();
   String userInput = "";
   String chatGPTResponse = "Pending";
+  List<String> historyList = [];
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: const Drawer(
-          child: Text('This is a Drawer'),
+        drawer: Drawer(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: ListTile(
+                  hoverColor: Colors.white,
+                  title: const Text("History"),
+                  leading: const Icon(Icons.history),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          HistoryPage(historyList: historyList),
+                    ));
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
         appBar: AppBar(
           backgroundColor: Colors.blue,
