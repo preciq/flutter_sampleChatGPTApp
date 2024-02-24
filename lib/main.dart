@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
   
   Future<String> postRequestToChatGPT() async {
     Uri url = Uri.https("api.replicate.com", "/v1/predictions");
-    const authToken = "r8_S1jRu33UXar3TA6msFU1fyV8ngmAcfk1lCkpa";
+    const authToken = "r8_3pluHu0JppBjFYFkNill3AQCCBHlAgF2V7slg";
 
     Map<String, dynamic> body = {
       "version":
