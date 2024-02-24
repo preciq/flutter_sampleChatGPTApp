@@ -62,11 +62,14 @@ class _HomePageState extends State<HomePage> {
                       height: 500,
                       width: 500,
                       child: Center(
-                        child: Text(
-                          chatGPTResponse,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Text(
+                            chatGPTResponse,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       )),
@@ -79,9 +82,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  
   Future<String> postRequestToChatGPT() async {
     Uri url = Uri.https("api.replicate.com", "/v1/predictions");
-    const authToken = "r8_S1jRu33UXar3TA6msFU1fyV8ngmAcfk1lCkpa";
+    const authToken = "r8_3pluHu0JppBjFYFkNill3AQCCBHlAgF2V7slg";
 
     Map<String, dynamic> body = {
       "version":
@@ -135,13 +139,3 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 }
-
-
-/*
-Additions: 
-
-Make response container scrollable - Shohag
-Add an appbar at the top with a drawer that shows the responses - Mithu
-Create a list to save responses and display in a listview (Just create the listview, don't need to display it, will be displayed in second requirement) - Shakil
-
-*/
