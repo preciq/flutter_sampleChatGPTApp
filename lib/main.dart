@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                 child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        postRequestToChatGPT();
+                        submitButtonPressed();
                       });
                     },
                     child: const Text("Submit")),
@@ -137,5 +137,5 @@ class _HomePageState extends State<HomePage> {
     });
     chatGPTResponse = await postRequestToChatGPT();
     setState(() {});
-   }
+  }
 }
