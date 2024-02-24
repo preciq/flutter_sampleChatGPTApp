@@ -32,6 +32,16 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        drawer: const Drawer(
+          child: Text('This is a Drawer'),
+        ),
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          centerTitle: true,
+          title: const Text(
+            'Simple chatGpt Api',
+          ),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -94,7 +104,7 @@ class _HomePageState extends State<HomePage> {
         headers: {
           "Content-Type": "application/json",
           "Authorization":
-              "Bearer ", //put your actual auth key here after "Bearer"
+              "Bearer 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", //put your actual auth key here after "Bearer"
         },
         body: json.encode(body));
 
