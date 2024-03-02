@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:sample_chat_app/history.dart';
-
 void main() {
   runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  const MainApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +16,7 @@ class MainApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -28,38 +26,38 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController txt = TextEditingController();
   String userInput = "";
   String chatGPTResponse = "Pending";
-  List<String> historyList = [];
+
+  List<String> responseHistory = [];
+
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         drawer: Drawer(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: ListTile(
-                  hoverColor: Colors.white,
-                  title: const Text("History"),
-                  leading: const Icon(Icons.history),
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          HistoryPage(historyList: historyList),
-                    ));
-                  },
+          child: ListView(
+            children: [
+              const DrawerHeader(
+                child: Text(
+                  'Response History',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green,
                 ),
               ),
+              for (var response in responseHistory)
+                 Text(response),  
             ],
           ),
         ),
         appBar: AppBar(
-          backgroundColor: Colors.blue,
-          centerTitle: true,
+          backgroundColor: Colors.greenAccent,
           title: const Text(
-            'Simple chatGpt Api',
+            'Llama Simple Ai App',
+            style: TextStyle(color: Colors.black),
           ),
+          centerTitle: true,
         ),
         body: Center(
           child: Column(
@@ -76,32 +74,31 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        submitButtonPressed();
-                      });
-                    },
-                    child: const Text("Submit")),
+                  onPressed: () {
+                    setState(() {
+                      submitButtonPressed();
+                    });
+                  },
+                  child: const Text("Submit"),
+                ),
               ),
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                      color: Colors.red,
-                      height: 500,
-                      width: 500,
-                      child: Center(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Text(
-                            chatGPTResponse,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                            ),
-                          ),
+                    color: Colors.red,
+                    height: 500,
+                    width: 500,
+                    child: Center(
+                      child: Text(
+                        chatGPTResponse,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
                 ),
               )
             ],
@@ -111,7 +108,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  
   Future<String> postRequestToChatGPT() async {
     Uri url = Uri.https("api.replicate.com", "/v1/predictions");
     const authToken = "r8_3pluHu0JppBjFYFkNill3AQCCBHlAgF2V7slg";
@@ -119,10 +115,7 @@ class _HomePageState extends State<HomePage> {
     Map<String, dynamic> body = {
       "version":
           "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",
-      "input": {
-        "prompt":
-            txt.text
-      }
+      "input": {"prompt": txt.text}
     };
 
     var response = await http.post(url,
@@ -155,7 +148,8 @@ class _HomePageState extends State<HomePage> {
       }
     } while (json.decode(responseTwo.body)["status"] != "succeeded");
 
-    String aiResponse = (json.decode(responseTwo.body)["output"] as List<dynamic>).join('');
+    String aiResponse =
+        (json.decode(responseTwo.body)["output"] as List<dynamic>).join('');
 
     return aiResponse;
   }
@@ -164,7 +158,15 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       userInput = txt.text;
     });
+   responseHistory.add(userInput);
     chatGPTResponse = await postRequestToChatGPT();
+    responseHistory.add(chatGPTResponse);
     setState(() {});
   }
 }
+
+/*
+ Add an appbar at the top with a drawer that shows the responses - Mithu
+Create a list to save responses and display in a listview 
+(Just create the listview, don't need to display it, will be displayed in second requirement) - Shaki
+ */
